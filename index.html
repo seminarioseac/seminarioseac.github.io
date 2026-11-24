@@ -14,18 +14,29 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;background:#213a7
 img{width:220px;height:auto;border-radius:12px}
 p{max-width:420px}
 </style>
-<script>
-// Link curto do convite: o código vem depois do "#" (não chega a servidor nenhum) e a página leva para a inscrição.
-var t = location.hash.slice(1);
-if (/^[A-Za-z0-9_-]{32}$/.test(t))
-  location.replace("https://script.google.com/macros/s/AKfycbxfsJ9y0cvMMvRCGTmaXr31lTrslfDTjjkL-5m7zHVgkDOLLD53_GpPqQS47j_ru-cQbg/exec?t=" + t);
-</script>
 </head>
 <body>
 <main>
 <img src="convite.jpg" alt="Casa Carioca: de favela pra favela">
-<p><b>A inscrição neste seminário é por convite.</b></p>
-<p>Abra o link completo que chegou para você pelo WhatsApp: ele é só seu. Não recebeu e é atendido pelo Casa Carioca? Fale com a equipe da sua comunidade.</p>
+<p id="msg"><b>A inscrição neste seminário é por convite.</b></p>
+<p id="nota">Abra o link completo que chegou para você pelo WhatsApp: ele é só seu. Não recebeu e é atendido pelo Casa Carioca? Fale com a equipe da sua comunidade.</p>
 </main>
+<script>
+// Link curto do convite: o código vem depois do "#" (não chega a servidor nenhum). A página do convite vem pronta do
+// Apps Script do Google, por fetch sem cookie: abrir o app do Google direto num celular logado em conta Google dá erro.
+var APP = "https://script.google.com/macros/s/AKfycbxfsJ9y0cvMMvRCGTmaXr31lTrslfDTjjkL-5m7zHVgkDOLLD53_GpPqQS47j_ru-cQbg/exec";
+var t = location.hash.slice(1);
+if (/^[A-Za-z0-9_-]{32}$/.test(t)) {
+  document.getElementById("msg").innerHTML = "<b>Abrindo o seu convite…</b>";
+  document.getElementById("nota").textContent = "";
+  fetch(APP + "?json=1&t=" + t, { credentials: "omit" })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { document.open(); document.write(d.html); document.close(); })
+    .catch(function () {
+      document.getElementById("msg").innerHTML = "<b>Não deu para abrir o convite agora.</b>";
+      document.getElementById("nota").textContent = "Confira a internet e toque de novo no link. Se não abrir, fale com a equipe do Casa Carioca.";
+    });
+}
+</script>
 </body>
 </html>
